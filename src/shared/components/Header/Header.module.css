@@ -1,0 +1,26 @@
+.header {
+  background: #ffffff;
+  border-bottom: 1px solid #e5e5e5;
+}
+
+.container {
+  display: flex;
+  width: min(100% - 2rem, 60rem);
+  min-height: 4.5rem;
+  margin-inline: auto;
+  align-items: center;
+}
+
+.brand {
+  color: #00a86b;
+  font-size: 1.75rem;
+  font-weight: 800;
+  line-height: 1;
+  letter-spacing: -0.04em;
+}
+
+@media (max-width: 48rem) {
+  .container {
+    width: min(100% - 1.5rem, 60rem);
+  }
+}

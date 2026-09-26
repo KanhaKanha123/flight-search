@@ -1,36 +1,749 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# Flight Search
+
+A flight search application built with **Next.js**, **React**, and
+**TypeScript** as part of the Transavia front-end assignment.
+
+The application allows users to search for available flights departing
+from Amsterdam Schiphol by selecting a destination and departure date.
+Matching flights are displayed on the same page with their schedule,
+airport information, price, and booking link.
+
+## Features
+
+-   Search flights departing from Amsterdam Schiphol (AMS)
+-   Select from destinations available in the provided flight data
+-   Search by departure date
+-   Display matching flights on the same page
+-   Display user-friendly airport names alongside airport codes
+-   Show departure and arrival times
+-   Show flight number and total price
+-   Link to the provided Transavia booking deeplink
+-   Loading, error, empty, and success states
+-   Responsive layout
+-   Accessible form controls and status messages
+-   Unit tests for business logic and component rendering
+
+## Tech Stack
+
+-   Next.js
+-   React
+-   TypeScript
+-   CSS Modules
+-   Vitest
+-   React Testing Library
+-   Testing Library User Event
 
 ## Getting Started
 
-First, run the development server:
+### Install dependencies
 
-```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
+``` bash
+npm install
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+### Start the development server
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+``` bash
+npm run dev
+```
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+Open:
 
-## Learn More
+``` text
+http://localhost:3000
+```
 
-To learn more about Next.js, take a look at the following resources:
+### Run tests
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+``` bash
+npm test
+```
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+For a single test run:
 
-## Deploy on Vercel
+``` bash
+npm run test:run
+```
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+### Run linting
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+``` bash
+npm run lint
+```
+
+### Create a production build
+
+``` bash
+npm run build
+```
+
+## Project Structure
+
+The application follows a feature-based structure. Flight-specific code
+is kept inside the `features/flights` domain, while reusable
+application-level components are kept under `shared`.
+
+``` text
+flight-search/
+├── public/
+│   └── data/
+│       ├── airports.json
+│       └── flights-from-AMS.json
+│
+├── src/
+│   ├── app/
+│   │   ├── page/
+│   │   ├── globals.css
+│   │   ├── icon.svg
+│   │   ├── layout.tsx
+│   │   ├── page.module.css
+│   │   └── page.tsx
+│   │
+│   ├── features/
+│   │   └── flights/
+│   │       ├── components/
+│   │       │   ├── FlightCard/
+│   │       │   ├── FlightResults/
+│   │       │   ├── FlightSearch/
+│   │       │   │   └── reducer/
+│   │       │   ├── FlightSearchForm/
+│   │       │   │   └── reducer/
+│   │       │   └── index.ts
+│   │       │
+│   │       ├── mappers/
+│   │       │   ├── flight.mapper.ts
+│   │       │   └── flight.mapper.test.ts
+│   │       │
+│   │       ├── services/
+│   │       │   ├── flight.service.ts
+│   │       │   └── flight.service.test.ts
+│   │       │
+│   │       ├── types/
+│   │       │   └── flight.types.ts
+│   │       │
+│   │       └── utils/
+│   │           ├── airportName/
+│   │           ├── availableDestinations/
+│   │           ├── filterFlights/
+│   │           ├── formatFlightTime/
+│   │           └── index.ts
+│   │
+│   └── shared/
+│       ├── api/
+│       │   ├── apiClient.ts
+│       └── components/
+│           ├── Footer/
+│           ├── Header/
+│           └── index.ts
+│
+├── eslint.config.mjs
+├── next.config.ts
+├── package.json
+├── tsconfig.json
+└── vitest.config.ts
+```
+
+Tests are colocated with the code they verify. This keeps implementation
+and its corresponding tests close together and makes features easier to
+maintain.
+
+## Architecture and Design Decisions
+
+### Feature-based structure
+
+Flight-related components, types, services, mappers, reducers, and
+utilities are grouped under:
+
+``` text
+src/features/flights
+```
+
+This keeps the flight domain self-contained instead of distributing
+related code across application-wide folders.
+
+Reusable components that are not specific to the flight domain, such as
+the `Header` and `Footer`, are placed under:
+
+``` text
+src/shared/components
+```
+
+This separation makes it clearer which components belong to a business
+feature and which can be reused across the wider application.
+
+## Data Loading
+
+The assignment provides two static JSON responses:
+
+``` text
+airports.json
+flights-from-AMS.json
+```
+
+They are placed under:
+
+``` text
+public/data/
+```
+
+and loaded asynchronously using `fetch`.
+
+### Why use `fetch` instead of importing the JSON directly?
+
+The JSON files could technically be imported directly:
+
+``` ts
+import flights from '../../../../public/data/flights-from-AMS.json';
+```
+
+For this implementation, they are intentionally accessed through `fetch`
+instead.
+
+``` ts
+const response = await fetch('/data/flights-from-AMS.json');
+```
+
+This was chosen because the supplied JSON represents API response data.
+Fetching it asynchronously keeps the application behaviour closer to how
+the same feature would work against a real backend API.
+
+It also allows the UI to handle realistic asynchronous states such as:
+
+-   loading
+-   successful responses
+-   failed requests
+-   malformed or unavailable data
+
+The component therefore does not need to assume that data is immediately
+available.
+
+Another advantage is that the service layer can later be changed from:
+
+``` text
+/data/flights-from-AMS.json
+```
+
+to a real API endpoint without requiring the UI components to know where
+the data originates.
+
+The static JSON files are therefore treated as a local API/data source
+rather than as application source code.
+
+### Shared API client
+
+HTTP access is centralized through a small typed API client rather than
+calling `fetch` directly from feature services.
+
+The API client is responsible for common transport-level concerns such as:
+
+- executing HTTP requests
+- validating HTTP response status
+- parsing JSON responses
+- providing typed responses
+- normalizing HTTP errors
+
+Feature services remain responsible for domain-specific concerns such as
+selecting resources and mapping API response models into application models.
+
+The abstraction is intentionally lightweight. Additional concerns such as
+authentication, retries, caching, or request cancellation would only be added
+when required by the application.
+
+## Service Layer
+
+Data access is isolated inside the flight service rather than performed
+directly inside React components.
+
+This keeps components focused on presentation and user interaction while
+the service is responsible for retrieving external data.
+
+For example:
+
+``` text
+Component
+    ↓
+Flight Service
+    ↓
+JSON / API
+```
+
+This separation also makes the service independently testable.
+
+## API Models and UI Models
+
+The structure of `flights-from-AMS.json` is not used directly throughout
+the UI.
+
+A mapper converts the supplied `FlightOffer` response into a smaller
+`Flight` model that contains only the information required by the
+application.
+
+Conceptually:
+
+``` text
+FlightOffer (API response)
+        ↓
+      Mapper
+        ↓
+Flight (application model)
+        ↓
+   UI components
+```
+
+For example, nested API data such as:
+
+``` ts
+outboundFlight.departureAirport.locationCode
+```
+
+becomes:
+
+``` ts
+flight.origin
+```
+
+This reduces coupling between the UI and the external response
+structure.
+
+If the API response changes in the future, much of that change can be
+isolated to the service/types/mapper layer instead of propagating
+through every component.
+
+## Flight Search Logic
+
+The provided flight response has a limited scope:
+
+-   Origin is Amsterdam Schiphol (`AMS`)
+-   Available dates are from 10 November 2022 through 30 November 2022
+
+For this reason, the origin is fixed to Amsterdam Schiphol.
+
+Available destinations are derived from the provided flight data and
+enriched with information from `airports.json`.
+
+When a search is submitted, flights are filtered by:
+
+``` text
+origin + destination + departure date
+```
+
+Only matching flights are displayed.
+
+The total price displayed to the user comes from:
+
+``` ts
+totalPriceAllPassengers
+```
+
+as specified in the assignment.
+
+## Date Handling
+
+The departure date is compared using the date portion of the API value.
+
+For example:
+
+``` text
+2022-11-23T07:00:00
+```
+
+becomes:
+
+``` text
+2022-11-23
+```
+
+For this use case, comparing the ISO date portion directly avoids
+unnecessary timezone conversion.
+
+This is useful because constructing a JavaScript `Date` can introduce
+timezone interpretation even though the search only needs to compare
+calendar dates.
+
+The complete timestamp is still retained for displaying the flight
+departure and arrival times.
+
+## State Management
+
+The application uses React's built-in `useReducer` where multiple
+related state values transition together.
+
+For example, the flight search handles related states such as:
+
+``` text
+loading
+error
+flights
+airports
+results
+hasSearched
+```
+
+Using a reducer keeps those transitions explicit and avoids spreading a
+larger number of related `useState` calls throughout the component.
+
+The form also uses a reducer for its related destination and
+departure-date state.
+
+For the current size of the application, an external state-management
+library would add unnecessary complexity.
+
+## Performance
+
+The implementation keeps performance considerations proportional to the
+size and scope of the assignment.
+
+Examples include:
+
+- deriving available destinations only when the source flight/airport
+  data changes
+- keeping filtering logic outside presentation components
+- avoiding unnecessary external state-management dependencies
+- separating API mapping from rendering
+- keeping component responsibilities focused
+- using client-side filtering for the supplied small, static dataset
+
+### Code splitting and lazy loading
+
+Next.js provides automatic route-level code splitting, so route-specific
+JavaScript does not need to be manually lazy-loaded.
+
+Component-level lazy loading using `next/dynamic` was also considered.
+However, components such as `FlightResults` and `FlightCard` are small and
+do not contain expensive dependencies.
+
+Introducing an additional lazy-loaded chunk for these components would add
+another loading boundary and complexity without providing a meaningful
+performance benefit for the current application.
+
+In a larger application, `next/dynamic` would be appropriate for expensive
+features that are not required during the initial interaction, such as maps,
+charts, rich-text editors, or other large client-side dependencies.
+
+### Client-side filtering
+
+The supplied flight dataset is small enough that client-side filtering is
+appropriate. Once the data has been loaded, filtering by destination and
+departure date is inexpensive and provides an immediate user interaction
+without an additional network request for every search.
+
+For a production system with a significantly larger or continuously changing
+flight inventory, search and filtering would typically be moved closer to the
+data source and handled through a backend API or Next.js server-side
+capabilities. The client would then receive only the results required for the
+current search.
+
+## Accessibility
+
+Accessibility was considered throughout the implementation.
+
+The application includes:
+
+-   semantic HTML
+-   explicit labels for form controls
+-   keyboard-accessible native form elements
+-   accessible button and link names
+-   visible focus states
+-   loading status announcements
+-   search result status announcements
+-   error announcements
+-   appropriate heading hierarchy
+-   decorative UI elements excluded from assistive technology where
+    appropriate
+
+Native HTML controls are preferred where possible because they provide
+keyboard and accessibility behaviour without recreating it using custom
+components.
+
+## Responsive Design
+
+The layout is designed to work across desktop and smaller viewport
+sizes.
+
+On wider screens, the search controls are displayed efficiently in a
+horizontal layout.
+
+On smaller screens, the layout adapts so controls and flight information
+remain readable and usable without requiring horizontal scrolling.
+
+CSS Modules are used to scope component styles locally and avoid
+unintended styling conflicts.
+
+## Testing Strategy
+
+The project uses **Vitest** and **React Testing Library**.
+
+Tests are colocated with the code being tested.
+
+The test suite covers both rendering and application logic, as required
+by the assignment.
+
+### Utility tests
+
+Pure business logic is tested independently, including:
+
+-   airport-name resolution
+-   available destination calculation
+-   flight filtering
+-   flight-time formatting
+
+### Mapper tests
+
+The flight mapper is tested separately to verify that the supplied API
+response structure is correctly transformed into the application's
+`Flight` model.
+
+### Service tests
+
+The service layer is tested independently from React components,
+including data retrieval and response handling.
+
+### Reducer tests
+
+Reducers are tested as pure functions to verify predictable state
+transitions.
+
+### Component tests
+
+Components are tested from the user's perspective using React Testing
+Library.
+
+Examples include:
+
+-   rendering form controls
+-   displaying available destinations
+-   submitting search criteria
+-   displaying flight information
+-   displaying empty search results
+-   displaying loading and error states
+-   exposing accessible buttons, links, labels, alerts, and status
+    information
+
+Tests intentionally focus on observable behaviour rather than internal
+implementation details.
+
+## Error and Empty States
+
+The application distinguishes between different states.
+
+### Loading
+
+While flight and airport information is being retrieved, the user
+receives a loading indication.
+
+### Data loading failure
+
+If the supplied data cannot be loaded, an accessible error message is
+displayed rather than leaving the page in an undefined state.
+
+### No matching flights
+
+When a search completes successfully but no flight matches the selected
+destination and date, the application displays:
+
+``` text
+No flights found for your search.
+```
+
+The `Available flights` section is only displayed when matching flights
+actually exist.
+
+## Next.js Server-side Capabilities and Future Evolution
+
+The current implementation intentionally performs the interactive flight
+search on the client.
+
+The supplied assignment data is a small, static dataset containing
+flights departing from Amsterdam Schiphol. After the data has been
+loaded, filtering by destination and departure date is inexpensive and
+does not justify an additional server request for every search.
+
+This keeps the implementation proportional to the problem while still
+demonstrating realistic asynchronous data loading, mapping,
+loading/error handling, and client-side interaction.
+
+### Why server-side search is not used for the supplied dataset
+
+Next.js provides Server Components, server-side data access, caching,
+revalidation, Route Handlers, and other server capabilities. These
+capabilities are valuable when they solve a concrete problem; they are
+not automatically required for every interaction.
+
+For this assignment, moving each search to the server would add another
+request and additional server-side complexity while querying the same
+small static dataset.
+
+The current flow is therefore:
+
+``` text
+Static JSON responses
+        ↓
+Flight service
+        ↓
+Mapper / application models
+        ↓
+Client application
+        ↓
+Destination + departure-date filtering
+        ↓
+Matching flights
+```
+
+This also keeps the search experience immediate after the initial data
+has loaded.
+
+### How the architecture could evolve in production
+
+A production flight platform would typically work with a much larger and
+continuously changing inventory. Sending the complete inventory to the
+browser would then be inefficient and inappropriate.
+
+In that environment, the search could move closer to the data source
+using Next.js server-side capabilities and a real flight API:
+
+``` text
+Browser
+   │
+   │ destination + departure date
+   ▼
+Next.js server
+   │
+   │ validated search request
+   ▼
+Flight API
+   │
+   │ matching flights
+   ▼
+Next.js server
+   │
+   ▼
+Client UI
+```
+
+This approach would allow the browser to receive only the flights
+required for the current search rather than downloading the complete
+inventory.
+
+Potential production benefits include:
+
+-   server-side integration with a real flight API
+-   keeping private API credentials and implementation details out of
+    the browser
+-   efficient querying of large or frequently changing inventories
+-   server-side caching and revalidation where appropriate
+-   centralized request validation and error handling
+-   reduced client-side data transfer
+-   a clearer boundary between data access and interactive presentation
+
+With the Next.js App Router, server and client responsibilities could
+also be separated deliberately. Server Components could handle
+server-side data retrieval and initial rendering, while Client
+Components could continue to own interactive behaviour such as
+destination selection, date selection, form submission, and other
+browser-driven state.
+
+For a search that should be represented in the URL, destination and
+departure date could also be expressed as search parameters. This would
+make searches shareable/bookmarkable and would provide a natural input
+to a future server-side search implementation.
+
+The existing separation between services, mappers, application types,
+utilities, and presentation components provides a straightforward path
+toward this evolution without requiring the UI to be redesigned.
+
+## Trade-offs
+
+The goal was to keep the solution clean and production-minded without
+over-engineering a relatively small assignment.
+
+For that reason, the application intentionally does not introduce
+additional libraries for:
+
+-   global state management
+-   server-state management
+-   form management
+-   component libraries
+
+React and Next.js provide everything required for the current scope.
+
+With a real backend and a larger production application, additional
+considerations could include:
+
+-   request cancellation for subsequent network-backed searches
+-   caching and revalidation strategies for API-backed data
+-   schema validation for API responses
+-   monitoring and observability
+-   end-to-end tests
+-   localization
+-   analytics
+-   more advanced error recovery
+
+These were intentionally kept outside the scope of the assignment.
+
+## Assignment Data Constraints
+
+The supplied flight data contains:
+
+-   flights departing from `AMS`
+-   flights between 10 November 2022 and 30 November 2022
+
+Therefore, the UI reflects these constraints instead of presenting
+options that cannot be fulfilled by the provided dataset.
+
+## Engineering Principles Applied
+
+The implementation deliberately favors clarity and maintainability over
+unnecessary abstraction.
+
+Key principles include:
+
+-   **Single responsibility:** components, services, mappers, reducers,
+    and utilities have focused responsibilities
+-   **Separation of concerns:** data retrieval, API-to-UI mapping,
+    business logic, state transitions, and rendering are separated
+-   **Strong typing:** TypeScript models describe both supplied response
+    structures and the simplified application model
+-   **Testability:** pure utilities, reducers, mappers, services, and
+    user-facing component behaviour can be tested independently
+-   **Progressive architecture:** the solution is simple for the
+    supplied static dataset while retaining clear extension points for a
+    real backend
+-   **Accessibility by default:** semantic HTML and native controls are
+    preferred before custom interaction patterns
+-   **Proportional complexity:** additional state, data-fetching, form,
+    and UI libraries are avoided where the platform and React already
+    provide sufficient capabilities
+
+## Lighthouse
+
+The application was audited using Google Chrome Lighthouse against the
+production build.
+
+The audit achieved:
+
+| Category | Score |
+| --- | ---: |
+| Performance | 100 |
+| Accessibility | 100 |
+| Best Practices | 100 |
+| SEO | 100 |
+
+## Summary
+
+The implementation focuses on:
+
+-   clear separation of responsibilities
+-   strongly typed data
+-   maintainable feature-based architecture
+-   asynchronous data handling
+-   testable business logic
+-   accessible UI
+-   responsive design
+-   clean and readable code
+
+The intention was to keep the solution simple and appropriate for the
+supplied assignment data while demonstrating patterns that can evolve
+naturally as the application grows. In particular, the current
+client-side search can move to a Next.js server-side search architecture
+when backed by a larger, dynamic production flight inventory, without
+requiring the presentation layer to be redesigned.

@@ -1,0 +1,39 @@
+.search {
+  width: 100%;
+  max-width: 960px;
+  margin-inline: auto;
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+}
+
+.status,
+.error,
+.resultsStatus {
+  width: 100%;
+  padding: 1rem 1.25rem;
+  background: #ffffff;
+  border: 1px solid #dedede;
+  border-radius: 0.5rem;
+  font-weight: 600;
+}
+
+.status {
+  background: #ffffff;
+  border: 1px solid #dedede;
+}
+
+.error {
+  background: #fff4f4;
+  border: 1px solid #b42318;
+}
+
+.error p {
+  margin: 0;
+}
+
+.resultsStatus {
+  background: #ffffff;
+  border: 1px solid #dedede;
+  font-weight: 600;
+}

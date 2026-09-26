@@ -1,0 +1,92 @@
+.page {
+  min-height: 100vh;
+}
+
+.header {
+  background: #ffffff;
+  border-bottom: 1px solid #e5e5e5;
+}
+
+.headerContent,
+.container {
+  width: min(100% - 2rem, 60rem);
+  margin-inline: auto;
+}
+
+.headerContent {
+  display: flex;
+  min-height: 4.5rem;
+  align-items: center;
+}
+
+.brand {
+  color: #00a86b;
+  font-size: 1.75rem;
+  font-weight: 800;
+  letter-spacing: -0.04em;
+}
+
+.main {
+  min-height: calc(100vh - 9rem);
+  padding-block: 3rem 4rem;
+}
+
+.titleSection {
+  width: 100%;
+  max-width: 960px;
+  margin-inline: auto;
+  margin-bottom: 2rem;
+}
+
+.eyebrow {
+  margin: 0 0 0.5rem;
+  color: #007a4d;
+  font-size: 0.875rem;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+}
+
+.title {
+  margin: 0;
+  color: #202020;
+  font-size: clamp(2rem, 5vw, 3.5rem);
+  line-height: 1.1;
+  letter-spacing: -0.03em;
+}
+
+.introduction {
+  max-width: 38rem;
+  margin: 1rem 0 0;
+  color: #555555;
+  font-size: 1.125rem;
+  line-height: 1.6;
+}
+
+.footer {
+  flex-shrink: 0;
+  padding-block: 1.25rem;
+  border-top: 1px solid #e5e5e5;
+  background: #ffffff;
+  color: #555555;
+  font-size: 0.875rem;
+}
+
+.footer p {
+  margin: 0;
+}
+
+@media (max-width: 48rem) {
+  .headerContent,
+  .container {
+    width: min(100% - 1.5rem, 75rem);
+  }
+
+  .main {
+    padding-block: 2rem 3rem;
+  }
+
+  .hero {
+    margin-bottom: 1.5rem;
+  }
+}
