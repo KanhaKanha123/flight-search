@@ -92,7 +92,6 @@ flight-search/
 │
 ├── src/
 │   ├── app/
-│   │   ├── page/
 │   │   ├── globals.css
 │   │   ├── icon.svg
 │   │   ├── layout.tsx
