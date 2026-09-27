@@ -308,60 +308,6 @@ If the API response changes in the future, much of that change can be
 isolated to the service/types/mapper layer instead of propagating
 through every component.
 
-## Flight Search Logic
-
-The provided flight response has a limited scope:
-
--   Origin is Amsterdam Schiphol (`AMS`)
--   Available dates are from 10 November 2022 through 30 November 2022
-
-For this reason, the origin is fixed to Amsterdam Schiphol.
-
-Available destinations are derived from the provided flight data and
-enriched with information from `airports.json`.
-
-When a search is submitted, flights are filtered by:
-
-``` text
-origin + destination + departure date
-```
-
-Only matching flights are displayed.
-
-The total price displayed to the user comes from:
-
-``` ts
-totalPriceAllPassengers
-```
-
-as specified in the assignment.
-
-## Date Handling
-
-The departure date is compared using the date portion of the API value.
-
-For example:
-
-``` text
-2022-11-23T07:00:00
-```
-
-becomes:
-
-``` text
-2022-11-23
-```
-
-For this use case, comparing the ISO date portion directly avoids
-unnecessary timezone conversion.
-
-This is useful because constructing a JavaScript `Date` can introduce
-timezone interpretation even though the search only needs to compare
-calendar dates.
-
-The complete timestamp is still retained for displaying the flight
-departure and arrival times.
-
 ## State Management
 
 The application uses React's built-in `useReducer` where multiple
@@ -482,7 +428,7 @@ by the assignment.
 Pure business logic is tested independently, including:
 
 -   airport-name resolution
--   available destination calculation
+-   available origin and destination calculation
 -   flight filtering
 -   flight-time formatting
 
@@ -591,65 +537,6 @@ Matching flights
 This also keeps the search experience immediate after the initial data
 has loaded.
 
-### How the architecture could evolve in production
-
-A production flight platform would typically work with a much larger and
-continuously changing inventory. Sending the complete inventory to the
-browser would then be inefficient and inappropriate.
-
-In that environment, the search could move closer to the data source
-using Next.js server-side capabilities and a real flight API:
-
-``` text
-Browser
-   │
-   │ destination + departure date
-   ▼
-Next.js server
-   │
-   │ validated search request
-   ▼
-Flight API
-   │
-   │ matching flights
-   ▼
-Next.js server
-   │
-   ▼
-Client UI
-```
-
-This approach would allow the browser to receive only the flights
-required for the current search rather than downloading the complete
-inventory.
-
-Potential production benefits include:
-
--   server-side integration with a real flight API
--   keeping private API credentials and implementation details out of
-    the browser
--   efficient querying of large or frequently changing inventories
--   server-side caching and revalidation where appropriate
--   centralized request validation and error handling
--   reduced client-side data transfer
--   a clearer boundary between data access and interactive presentation
-
-With the Next.js App Router, server and client responsibilities could
-also be separated deliberately. Server Components could handle
-server-side data retrieval and initial rendering, while Client
-Components could continue to own interactive behaviour such as
-destination selection, date selection, form submission, and other
-browser-driven state.
-
-For a search that should be represented in the URL, destination and
-departure date could also be expressed as search parameters. This would
-make searches shareable/bookmarkable and would provide a natural input
-to a future server-side search implementation.
-
-The existing separation between services, mappers, application types,
-utilities, and presentation components provides a straightforward path
-toward this evolution without requiring the UI to be redesigned.
-
 ## Trade-offs
 
 The goal was to keep the solution clean and production-minded without
@@ -679,16 +566,6 @@ considerations could include:
 
 These were intentionally kept outside the scope of the assignment.
 
-## Assignment Data Constraints
-
-The supplied flight data contains:
-
--   flights departing from `AMS`
--   flights between 10 November 2022 and 30 November 2022
-
-Therefore, the UI reflects these constraints instead of presenting
-options that cannot be fulfilled by the provided dataset.
-
 ## Engineering Principles Applied
 
 The implementation deliberately favors clarity and maintainability over
@@ -704,14 +581,8 @@ Key principles include:
     structures and the simplified application model
 -   **Testability:** pure utilities, reducers, mappers, services, and
     user-facing component behaviour can be tested independently
--   **Progressive architecture:** the solution is simple for the
-    supplied static dataset while retaining clear extension points for a
-    real backend
 -   **Accessibility by default:** semantic HTML and native controls are
     preferred before custom interaction patterns
--   **Proportional complexity:** additional state, data-fetching, form,
-    and UI libraries are avoided where the platform and React already
-    provide sufficient capabilities
 
 ## Lighthouse
 
