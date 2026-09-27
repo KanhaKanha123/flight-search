@@ -378,6 +378,50 @@ data source and handled through a backend API or Next.js server-side
 capabilities. The client would then receive only the results required for the
 current search.
 
+## Next.js Server-side Capabilities and Future Evolution
+
+The current implementation intentionally performs the interactive flight
+search on the client.
+
+The supplied assignment data is a small, static dataset containing
+flights departing from Amsterdam Schiphol. After the data has been
+loaded, filtering by destination and departure date is inexpensive and
+does not justify an additional server request for every search.
+
+This keeps the implementation proportional to the problem while still
+demonstrating realistic asynchronous data loading, mapping,
+loading/error handling, and client-side interaction.
+
+### Why server-side search is not used for the supplied dataset
+
+Next.js provides Server Components, server-side data access, caching,
+revalidation, Route Handlers, and other server capabilities. These
+capabilities are valuable when they solve a concrete problem; they are
+not automatically required for every interaction.
+
+For this assignment, moving each search to the server would add another
+request and additional server-side complexity while querying the same
+small static dataset.
+
+The current flow is therefore:
+
+``` text
+Static JSON responses
+        ↓
+Flight service
+        ↓
+Mapper / application models
+        ↓
+Client application
+        ↓
+Destination + departure-date filtering
+        ↓
+Matching flights
+```
+
+This also keeps the search experience immediate after the initial data
+has loaded.
+
 ## Accessibility
 
 Accessibility was considered throughout the implementation.
@@ -492,50 +536,6 @@ No flights found for your search.
 
 The `Available flights` section is only displayed when matching flights
 actually exist.
-
-## Next.js Server-side Capabilities and Future Evolution
-
-The current implementation intentionally performs the interactive flight
-search on the client.
-
-The supplied assignment data is a small, static dataset containing
-flights departing from Amsterdam Schiphol. After the data has been
-loaded, filtering by destination and departure date is inexpensive and
-does not justify an additional server request for every search.
-
-This keeps the implementation proportional to the problem while still
-demonstrating realistic asynchronous data loading, mapping,
-loading/error handling, and client-side interaction.
-
-### Why server-side search is not used for the supplied dataset
-
-Next.js provides Server Components, server-side data access, caching,
-revalidation, Route Handlers, and other server capabilities. These
-capabilities are valuable when they solve a concrete problem; they are
-not automatically required for every interaction.
-
-For this assignment, moving each search to the server would add another
-request and additional server-side complexity while querying the same
-small static dataset.
-
-The current flow is therefore:
-
-``` text
-Static JSON responses
-        ↓
-Flight service
-        ↓
-Mapper / application models
-        ↓
-Client application
-        ↓
-Destination + departure-date filtering
-        ↓
-Matching flights
-```
-
-This also keeps the search experience immediate after the initial data
-has loaded.
 
 ## Trade-offs
 
